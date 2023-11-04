@@ -35,6 +35,10 @@ namespace pol {
             _size = 0;
         }
 
+        size_t size() const {
+            return _size;
+        }
+
         Polynomial<T>& operator=(Polynomial<T> poly) {
             swap(poly);
             return *this;
@@ -50,6 +54,26 @@ namespace pol {
                 return 0;
             }
             return _data[index];
+        }
+
+        void set(T data, size_t index) {
+            if (index > _size) {
+                expand(index + 1);
+            }
+            _data[index] = data;
+        }
+
+        void expand(size_t size) {
+            if (size < _size) {
+                throw std::out_of_range("operator[] Index is out of range.");
+            }
+            T* temp_arr = (new T[size]());
+            for (size_t i = 0; i < _size; i++) {
+                temp_arr[i] = _data[i];
+            }
+            delete[] _data;
+            _data = temp_arr;
+            _size = size;
         }
 
         Polynomial<T>& operator+= (const Polynomial<T>& p) {
@@ -117,6 +141,23 @@ namespace pol {
                 res += _data[i] * pow(x, i);
             }
             return res;
+        }
+        
+        void shrink_to_fit() {
+            T zero = T(0);
+            for (size_t i = _size - 1; i > 0; i--) {
+                if (_data[i] != zero) {
+                    i++;
+                    T* temp = (new T[i]());
+                    for (size_t j = 0; j < i; j++) {
+                        temp[j] = _data[j];
+                    }
+                    delete[] _data;
+                    _data = temp;
+                    _size = i;
+                    break;
+                }
+            }
         }
     };
 
