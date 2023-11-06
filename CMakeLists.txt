@@ -20,6 +20,6 @@ target_include_directories(polynomial PUBLIC "include")
 
 
 #Подключение консольного приложения
-#add_executable(console "console/console.cc")
-#target_link_libraries(console polynomial)
+add_executable(console "console/console.cc")
+target_link_libraries(console polynomial)
 

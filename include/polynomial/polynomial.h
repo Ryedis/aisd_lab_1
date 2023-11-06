@@ -35,8 +35,12 @@ namespace pol {
             _size = 0;
         }
 
-        size_t size() const {
+        size_t get_size() const {
             return _size;
+        }
+
+        T* get_data() const {
+            return _data;
         }
 
         Polynomial<T>& operator=(Polynomial<T> poly) {
@@ -127,7 +131,7 @@ namespace pol {
         }
 
         bool operator!= (const Polynomial<T>& p) const {
-            return !(a == *this);
+            return !(p == *this);
         }
 
         friend Polynomial<T> operator* (const T& p, const Polynomial<T>& pol) {
@@ -135,7 +139,7 @@ namespace pol {
             res = res * p;
             return res;
         }
-        T calculate_x(const T& x) {
+        T calc_x (const T& x) {
             T res = 0;
             for (size_t i = 0; i < _size; i++) {
                 res += _data[i] * pow(x, i);
@@ -162,16 +166,45 @@ namespace pol {
     };
 
     template<typename T>
-    std::ostream& operator << (std::ostream& stream, const Polynomial<T>& a) {
-        for (size_t i = 0; i < a.size(); ++i) {
+    double calc_root_1(Polynomial<T> polynomial) {
+        T* data = polynomial.get_data();
+        if (data[1] == 0) {
+            throw std::out_of_range("calc_root() There is no solution.");
+        }
+        return (-1.0) * data[0] / data[1];
+    }
+
+    template<typename T>
+    complex<double>* calc_root_2(complex<double>* roots, Polynomial<T> polynomial) {
+        T* data = polynomial.get_data();
+        T a = data[2];
+        T b = data[1];
+        T c = data[0];
+        T discriminant = b * b - 4 * a * c;
+
+        if (discriminant >= 0) {
+            roots[0] = (-b + std::sqrt(discriminant)) / (2.0 * a);
+            roots[1] = (-b - std::sqrt(discriminant)) / (2.0 * a);
+        }
+        else {
+            std::complex<double> complexRoot(-b / (2.0 * a), std::sqrt(-discriminant) / (2 * a)); //Первый аргумент вещественная часть, вторая мнимая
+            roots[0] = complexRoot;
+            roots[1] = std::conj(complexRoot); //Сопряженное
+        }
+        return roots;
+    }
+
+    template<typename T>
+    std::ostream& operator << (std::ostream& stream, const Polynomial<T>& p) {
+        for (size_t i = 0; i < p.get_size(); ++i) {
             if (i == 0) {
-                stream << a[i];
+                stream << p[i];
             }
             else if (i == 1) {
-                stream << " + " << a[i] << "*x";
+                stream << " + " << p[i] << "*x";
             }
             else {
-                stream << " + " << a[i] << "*x^" << i;
+                stream << " + " << p[i] << "*x^" << i;
             }
         }
         return stream;
